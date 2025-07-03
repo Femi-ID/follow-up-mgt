@@ -4,11 +4,13 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { LocalAuthGuard } from 'apps/auth/src/guards/local-auth/local-auth.guard';
 import { RefreshAuthGuard } from '../guards/refresh-auth/refresh-auth.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth/jwt-auth.guard';
+import { Public } from './decorators/public.decorators';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Body() credential: LoginUserDto, @Request() req) {
@@ -16,13 +18,13 @@ export class AuthController {
     return await this.authService.login(req.user.id, req.user.role);
   }
 
+  @Public()
   @UseGuards(RefreshAuthGuard)
   @Get('refresh')
   async refresh(@Req() req) {
     return this.authService.refreshToken({'sub': req.user.id, 'role': req.user.role});
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('sign-out')
   async signOut(@Req() req) {
     return this.authService.signOut(req.user.id);

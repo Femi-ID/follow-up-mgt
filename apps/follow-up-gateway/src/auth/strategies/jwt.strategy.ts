@@ -21,8 +21,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const userId = payload.sub
-    console.log('jwt-userID typeof', typeof userId)
     console.log('payload..', payload)
     return await this.authService.validateJwtUser(payload); // to return the userId and user.role 
   }

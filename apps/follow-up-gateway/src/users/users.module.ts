@@ -6,6 +6,9 @@ import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from '../auth/config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from '../auth/strategies/jwt.strategy';
+import { RolesGuard } from '../guards/roles/roles.guard';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from '../guards/jwt-auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -20,6 +23,11 @@ import { JwtStrategy } from '../auth/strategies/jwt.strategy';
     ]),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [
+    UsersService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard }, 
+    // RolesGuard comes after the JwtAuthGuard cause of the request.user object
+  ],
 })
 export class UsersModule {}
