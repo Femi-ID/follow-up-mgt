@@ -5,7 +5,11 @@ export class JwtPayload {
   @IsNotEmpty()
   sub: string;
 
+  // @IsString()
+  // @IsNotEmpty()
+  // firstName: string;
+
   @IsString()
   @IsNotEmpty()
-  firstName: string;
+  role: string;
 }

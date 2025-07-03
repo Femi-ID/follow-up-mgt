@@ -13,13 +13,13 @@ export class AuthController {
   @Post('login')
   async login(@Body() credential: LoginUserDto, @Request() req) {
     console.log('User authenticated successfully:', req.user);
-    return await this.authService.login(req.user.id);
+    return await this.authService.login(req.user.id, req.user.role);
   }
 
   @UseGuards(RefreshAuthGuard)
-  @Post('refresh')
+  @Get('refresh')
   async refresh(@Req() req) {
-    return this.authService.refreshToken(req.user.id);
+    return this.authService.refreshToken({'sub': req.user.id, 'role': req.user.role});
   }
 
   @UseGuards(JwtAuthGuard)

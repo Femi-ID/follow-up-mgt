@@ -9,9 +9,9 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from 'apps/follow-up-gateway/src/auth/config/jwt.config';
 import jwtRefreshConfig from 'apps/follow-up-gateway/src/auth/config/jwt-refresh.config';
-import { RefreshJwtStrategy } from 'apps/follow-up-gateway/src/auth/strategies/refresh.strategy';
-import { JwtStrategy } from 'apps/follow-up-gateway/src/auth/strategies/jwt.strategy';
-// import * as { AuthMicroService } from 'apps/follow-up-gateway/src/auth/auth.service'; 
+// import { RefreshJwtStrategy } from 'apps/follow-up-gateway/src/auth/strategies/refresh.strategy';
+// import { JwtStrategy } from 'apps/follow-up-gateway/src/auth/strategies/jwt.strategy';
+// import { AuthService } as AuthMicroservice from 'apps/follow-up-gateway/src/auth/auth.service'; 
 
 @Module({
   imports: [
@@ -26,6 +26,6 @@ import { JwtStrategy } from 'apps/follow-up-gateway/src/auth/strategies/jwt.stra
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy, RefreshJwtStrategy],
+  providers: [AuthService, UsersService, LocalStrategy],
 })
 export class AuthModule {}

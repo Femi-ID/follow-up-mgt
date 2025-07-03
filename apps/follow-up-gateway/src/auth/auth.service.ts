@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { LoginUserDto } from './dto/login-user.dto';
+import { Role } from 'apps/users/src/enums/roles.enums';
+import { JwtPayload } from './dto/auth-jwtPayload.dto';
 
 
 @Injectable()
@@ -12,12 +14,12 @@ export class AuthService {
     return await firstValueFrom(this.authClient.send('auth.validateUser', { email, password }));
   }
 
-  async login(userId: string) {
-    return await firstValueFrom(this.authClient.send('auth.login', userId));
+  async login(userId: string, userRole: string) {
+    return await firstValueFrom(this.authClient.send('auth.login', {userId, userRole}));
   }
 
-  async refreshToken(userId: string) {
-    return await firstValueFrom(this.authClient.send('auth.refreshToken', userId));
+  async refreshToken(payload: JwtPayload) {
+    return await firstValueFrom(this.authClient.send('auth.refreshToken', payload));
   }
 
   async validateRefreshToken(userId: string, refreshToken: string) {
@@ -26,5 +28,9 @@ export class AuthService {
 
   async signOut(userId: string) {
     return await firstValueFrom(this.authClient.send('auth.signOut', userId));
+  }
+
+  async validateJwtUser(payload: JwtPayload) {
+    return await firstValueFrom(this.authClient.send('auth.validateJwtUser', payload));
   }
 }

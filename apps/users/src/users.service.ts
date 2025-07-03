@@ -43,6 +43,7 @@ export class UsersService {
   async findOne(userId: string) {
     const user = await this.userModel.findById(userId)
     if (!user) throw new BadRequestException('No user found');
+    console.log('user..', user)
     return user
   }
 

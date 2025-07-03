@@ -8,4 +8,8 @@ export class JwtPayload {
   // @IsString()
   // @IsNotEmpty()
   // firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  role: string;
 }

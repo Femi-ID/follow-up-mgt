@@ -1,4 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Role } from "../enums/roles.enums";
+import { IsEnum } from "class-validator";
 
 @Schema({ timestamps: true})
 export class User {
@@ -16,6 +18,10 @@ export class User {
 
     @Prop({required: false})
     hashedRefreshToken: string;
+
+    @Prop({required: true, type: String, enum: Role, default: Role.TEAM_MEMBER})
+    @IsEnum(Role, { message: 'value must be one of the choices listed in the Role enum.' })
+    role: Role;
 
     @Prop({ required: false, default: 'https://example.com/default-avatar.png'})
     avatarUrl: string;

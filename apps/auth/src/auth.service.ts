@@ -1,5 +1,6 @@
 import { JwtPayload } from '@app/contracts/auth/dto/auth-jwtPayload.dto';
-import { LoginUserDto } from '@app/contracts/auth/dto/login-user.dto';
+import { CurrentRequestUserDto } from '@app/contracts/auth/dto/current-request-user.dto';
+// import { LoginUserDto } from '@app/contracts/auth/dto/login-user.dto';
 import {
   BadRequestException,
   Inject,
@@ -31,7 +32,7 @@ export class AuthService {
       throw new BadRequestException('Incorrect user credentials');
 
     console.log('User validated successfully:', user);
-    return { id: user.id, email: user.email, firstName: user.firstName };
+    return { id: user.id, email: user.email, role: user.role };
   }
 
   async verifyPassword(hash: string, plainPassword: string): Promise<boolean> {
@@ -43,11 +44,11 @@ export class AuthService {
     }
   }
 
-  async login(userId: string) {
-    const payload = { sub: userId };
+  async login(userId: string, userRole: string) {
+    const payload = { sub: userId, role: userRole };
     // const accessToken = await this.jwtService.signAsync(payload);
     // const refreshToken = await this.jwtService.signAsync(payload, this.refreshTokenConfig)
-    const { accessToken, refreshToken } = await this.generateToken(userId);
+    const { accessToken, refreshToken } = await this.generateToken(payload);
     const hashedRefreshedToken = await argon2.hash(refreshToken);
     await this.usersService.updateHashedRefreshToken(
       userId,
@@ -61,18 +62,24 @@ export class AuthService {
     };
   }
 
-  async refreshToken(userId: string) {
-    // const payload: JwtPayload = { sub: userId };
-    // const accessToken = await this.jwtService.signAsync(payload); // use the refresh token to create a new accessToken
-    const { accessToken, refreshToken } = await this.generateToken(userId) 
-    // doing this means the user will never re-login cause the refresh-token won't get expired
+  async refreshToken(payload: JwtPayload) {
+    const { accessToken, refreshToken } = await this.generateToken(payload);
+    // doing this means the user will never re-login cause the refresh-token won't get expired, BAD??
     const hashedRefreshedToken = await argon2.hash(refreshToken);
-    await this.usersService.updateHashedRefreshToken(userId, hashedRefreshedToken); // update the user db
-    return { id: userId, accessToken, refreshToken };
+    await this.usersService.updateHashedRefreshToken(
+      payload.sub,
+      hashedRefreshedToken,
+    ); // update the user db
+    return {
+      id: payload.sub,
+      accessToken,
+      refreshToken,
+      message: 'New user accessToken and refresh token sent',
+    };
   }
 
-  async generateToken(userId: string) {
-    const payload = { sub: userId };
+  async generateToken(payload: JwtPayload) {
+    // const payload = { sub: userId };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
       this.jwtService.signAsync(payload, this.refreshTokenConfig),
@@ -81,19 +88,36 @@ export class AuthService {
   }
 
   async validateRefreshToken(userId: string, refreshToken: string) {
-    const user = await this.usersService.findOne(userId);
-    if (!user || !user.hashedRefreshToken)
-      throw new UnauthorizedException('Invalid user credential or refreshToken');
-    const sameRefreshToken = await argon2.verify(
-      user.hashedRefreshToken,
-      refreshToken,
-    );
-    if (!sameRefreshToken) throw new UnauthorizedException('Invalid refreshToken');
-    return { id: userId };
+    try {
+      const user = await this.usersService.findOne(userId);
+      if (!user || !user.hashedRefreshToken)
+        throw new UnauthorizedException(
+          'Invalid user credential or refreshToken',
+        );
+      const sameRefreshToken = await argon2.verify(
+        user.hashedRefreshToken,
+        refreshToken,
+      );
+      if (!sameRefreshToken)
+        throw new UnauthorizedException('Invalid refreshToken');
+      return { id: userId };
+    } catch (error) {
+      console.error(error);
+      throw new UnauthorizedException({ message: 'Unable to validate refreshToken', 'error': error });
+    }
   }
 
   async signOut(userId: string) {
     await this.usersService.updateHashedRefreshToken(userId, null);
-    return {'message': "User signed out and refreshToken discarded."}
+    return { message: 'User signed out and refreshToken discarded.' };
+  }
+
+  async validateJwtUser(payload: JwtPayload) {
+    const user = await this.usersService.findOne(payload.sub);
+    if (!user) throw new BadRequestException('Invalid user ID');
+    if (user.role !== payload.role ) throw new UnauthorizedException('User role does not match the JWT payload role.')
+    const currentUser: CurrentRequestUserDto = { id: user.id, role: user.role };
+    return currentUser;
+
   }
 }

@@ -14,13 +14,13 @@ export class AuthController {
   }
 
   @MessagePattern('auth.login')
-  async login(@Payload() userId: string) {
-    return this.authService.login(userId);
+  async login(@Payload() {userId, userRole}: {userId: string, userRole: string}) {
+    return this.authService.login(userId, userRole);
   }
 
   @MessagePattern('auth.refreshToken')
-  async refreshToken(@Payload() userId: string) {
-    return this.authService.refreshToken(userId)
+  async refreshToken(@Payload() payload: JwtPayload) {
+    return this.authService.refreshToken(payload)
   }
 
   @MessagePattern('auth.validateRefreshToken')
@@ -31,5 +31,10 @@ export class AuthController {
   @MessagePattern('auth.signOut')
   async signOut(@Payload() userId: string) {
     return this.authService.signOut(userId)
+  }
+
+  @MessagePattern('auth.validateJwtUser')
+  async validateJwtUser(@Payload() payload: JwtPayload) {
+    return this.authService.validateJwtUser(payload)
   }
 }
