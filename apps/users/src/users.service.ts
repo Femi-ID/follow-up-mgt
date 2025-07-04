@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/users.schemas';
 import { Model } from 'mongoose';
 import * as argon2 from 'argon2';
+import { CreateGoogleUserDto } from '@app/contracts/auth/dto/create-googleUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -18,6 +19,13 @@ export class UsersService {
     
     createUserDto.password, createUserDto.email = hashedPassword, email;
     const newUser = this.userModel.create({ createUserDto})
+    return newUser;
+  }
+
+  async signUpSocialAccount(createGoogleUserDto: CreateGoogleUserDto) {
+    // const existingUser = await this.findByEmail(createGoogleUserDto.email);
+    // if (existingUser) throw new BadRequestException('User already exists');
+    const newUser = this.userModel.create({ createGoogleUserDto });
     return newUser;
   }
 

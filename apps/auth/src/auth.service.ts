@@ -1,4 +1,6 @@
 import { JwtPayload } from '@app/contracts/auth/dto/auth-jwtPayload.dto';
+import { CreateGoogleUserDto } from '@app/contracts/auth/dto/create-googleUser.dto';
+import { CreateUserDto } from '@app/contracts/auth/dto/create-user.dto';
 import { CurrentRequestUserDto } from '@app/contracts/auth/dto/current-request-user.dto';
 // import { LoginUserDto } from '@app/contracts/auth/dto/login-user.dto';
 import {
@@ -119,5 +121,12 @@ export class AuthService {
     const currentUser: CurrentRequestUserDto = { id: user.id, role: user.role };
     return currentUser;
 
+  }
+
+  async validateGoogleUser(googleUser: CreateGoogleUserDto) {
+    console.log('google user..', googleUser)
+    const user = this.usersService.findByEmail(googleUser.email);
+    if (user) return user // user already exists in the db, no need to create user account
+    return await this.usersService.signUpSocialAccount(googleUser);
   }
 }

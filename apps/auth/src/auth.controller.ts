@@ -2,6 +2,8 @@ import { Controller, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { JwtPayload } from '@app/contracts/auth/dto/auth-jwtPayload.dto';
+import { CreateUserDto } from '@app/contracts/auth/dto/create-user.dto';
+import { CreateGoogleUserDto } from '@app/contracts/auth/dto/create-googleUser.dto';
 // import { LoginUserDto } from '@app/contracts/auth/dto/login-user.dto';
 
 @Controller()
@@ -36,5 +38,10 @@ export class AuthController {
   @MessagePattern('auth.validateJwtUser')
   async validateJwtUser(@Payload() payload: JwtPayload) {
     return this.authService.validateJwtUser(payload)
+  }
+
+  @MessagePattern('auth.validateGoogleUser')
+  async validateGoogleUser(@Payload() googleUser: CreateGoogleUserDto) {
+    return this.authService.validateGoogleUser(googleUser)
   }
 }

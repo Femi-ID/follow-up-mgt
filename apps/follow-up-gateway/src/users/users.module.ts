@@ -27,6 +27,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth/jwt-auth.guard';
     UsersService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard }, 
+    // we apply the JwtAuthGuard to the useGuards decorator on all endpoints
     // RolesGuard comes after the JwtAuthGuard cause of the request.user object
   ],
 })

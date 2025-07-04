@@ -12,12 +12,15 @@ import { RefreshJwtStrategy } from './strategies/refresh.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '../guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles/roles.guard';
+import googleOauthConfig from './config/google-oauth.config';
+import { GoogleStrategy } from './strategies/google-strategy';
 
 @Module({
   imports: [
     JwtModule.registerAsync(jwtConfig.asProvider()), // register jwt configurations
     ConfigModule.forFeature(jwtConfig), // to access the jwt configurations for this module
     ConfigModule.forFeature(jwtRefreshConfig), // access the refresh-jwt config for this module
+    ConfigModule.forFeature(googleOauthConfig),
     ClientsModule.register([
       {
         name: 'AUTH_CLIENT',
@@ -35,6 +38,7 @@ import { RolesGuard } from '../guards/roles/roles.guard';
     LocalStrategy,
     JwtStrategy,
     RefreshJwtStrategy,
+    GoogleStrategy,
     { provide: APP_GUARD, useClass: JwtAuthGuard }, // @UseGuards(JwtAuthGuard) applied on all API endpoints
     { provide: APP_GUARD, useClass: RolesGuard },
   ],

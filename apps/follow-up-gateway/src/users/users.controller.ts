@@ -35,6 +35,7 @@ export class UsersController {
   }
 
   // @UseGuards(JwtAuthGuard)
+  // @UseGuards(RolesGuard)
   @Roles(Role.ADMIN, Role.TEAM_LEADER, Role.TEAM_MEMBER)
   @Get('profile')
   findOne(@Req() req) {
@@ -47,7 +48,7 @@ export class UsersController {
   //   return this.usersService.update(+id, updateUserDto);
   // }
 
-  @UseGuards(RolesGuard)
+  // @UseGuards(RolesGuard)
   @Roles(Role.ADMIN, Role.TEAM_LEADER)
   @Delete(':id')
   remove(@Param('id') id: string) {

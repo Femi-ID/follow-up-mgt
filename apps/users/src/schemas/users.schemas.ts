@@ -13,7 +13,7 @@ export class User {
     @Prop({ required: true, unique: true})
     email: string;
 
-    @Prop({ required: true})
+    @Prop({ required: false })
     password: string;
 
     @Prop({required: false})
@@ -22,6 +22,9 @@ export class User {
     @Prop({required: true, type: String, enum: Role, default: Role.TEAM_MEMBER})
     @IsEnum(Role, { message: 'value must be one of the choices listed in the Role enum.' })
     role: Role;
+
+    @Prop({ required: true, default: false })
+    isSocialAccount: boolean;
 
     @Prop({ required: false, default: 'https://example.com/default-avatar.png'})
     avatarUrl: string;
