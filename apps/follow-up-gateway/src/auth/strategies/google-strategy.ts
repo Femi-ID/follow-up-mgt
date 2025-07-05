@@ -26,6 +26,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       firstName: profile.name.givenName,
       lastName: profile.name.givenName,
       email: profile.emails[0].value,
+      password: '',
       avatarUrl: profile.photos[0].value,
       role: Role.TEAM_MEMBER, //option change to regular user: Role.REGULAR_USER
       isSocialAuth: true

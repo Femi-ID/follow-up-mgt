@@ -14,9 +14,9 @@ export class CreateGoogleUserDto {
   @IsNotEmpty()
   email: string;
 
-//   @IsString()
-//   @IsNotEmpty()
-//   password: string;
+  @IsString()
+  @IsOptional()
+  password: string;
 
   @IsOptional()
   @IsString()

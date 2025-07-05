@@ -18,15 +18,16 @@ export class UsersService {
     const hashedPassword = await this.hashPassword(password);
     
     createUserDto.password, createUserDto.email = hashedPassword, email;
-    const newUser = this.userModel.create({ createUserDto})
+    const newUser = await this.userModel.create(createUserDto)
     return newUser;
   }
 
   async signUpSocialAccount(createGoogleUserDto: CreateGoogleUserDto) {
     // const existingUser = await this.findByEmail(createGoogleUserDto.email);
     // if (existingUser) throw new BadRequestException('User already exists');
-    const newUser = this.userModel.create({ createGoogleUserDto });
-    return newUser;
+    const newUser = await this.userModel.create(createGoogleUserDto);
+    console.log('new user created via google..', newUser)
+    return newUser.save();
   }
 
   async findByEmail(email: string) {

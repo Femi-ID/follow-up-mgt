@@ -127,6 +127,7 @@ export class AuthService {
     console.log('google user..', googleUser)
     const user = this.usersService.findByEmail(googleUser.email);
     if (user) return user // user already exists in the db, no need to create user account
-    return await this.usersService.signUpSocialAccount(googleUser);
+    const newUser =  await this.usersService.signUpSocialAccount(googleUser);
+    return newUser;
   }
 }
