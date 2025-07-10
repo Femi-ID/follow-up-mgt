@@ -8,17 +8,17 @@ import { UserPatterns } from '@app/contracts/users/constants/message-patterns';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @MessagePattern(UserPatterns.USER_SIGNUP)
+  @MessagePattern(UserPatterns.SIGNUP)
   async signUp(@Payload() credential: CreateUserDto) {
     return this.usersService.signUp(credential);
   }
   
-  @MessagePattern(UserPatterns.USERS_FIND_ALL)
+  @MessagePattern(UserPatterns.FIND_ALL)
   async findAll() {
     return this.usersService.findAll();
   }
 
-  @MessagePattern(UserPatterns.USERS_FIND_ONE)
+  @MessagePattern(UserPatterns.FIND_ONE)
   async findOne(@Payload() userId: string) {
     return await this.usersService.findOne(userId);
   }
