@@ -21,12 +21,18 @@ export class FileUploadsService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   @InjectModel(NewGuest.name) private newGuestModel: Model<NewGuest>) {}
 
+  async processMultipleExcelFiles(payload: FileProcessingPayload[]) {
+    for (const file of payload) {
+      await this.convertExcelFileToJson(file);
+    }
+  }
+
   async convertExcelFileToJson(payload: FileProcessingPayload) {
     try {
       const fileBuffer = fs.readFileSync(payload.filePath);
       const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
 
-      const headers = [
+      const expectedHeaders = [
         'name',
         'address',
         'phoneNumber',
@@ -36,35 +42,45 @@ export class FileUploadsService {
         'response'
       ];
 
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: headers, range: 1, defval: '', blankrows: false});
-      const jsonDocuments = jsonData.map((row) => ({row}));
+      const allValidatedRows: ExcelRowDto[] = [];
 
-      const headerRow = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 0, raw: true})[0] as string[];
-      const expectedHeaders = ['name', 'address', 'phoneNumber', 'email', 'gender', 'ageGroup', 'response'];
-      const missingHeaders = expectedHeaders.filter(h => !headerRow.includes(h));
-      if (missingHeaders.length > 0) {
-        throw new RpcException(`Missing headers in the Excel file: ${missingHeaders.join(', ')}`);
+      // const sheetName = workbook.SheetNames[0];
+      // to process all sheets in the workbook- *confirm expectedHeaders in each sheet, *confirm each row has the expected contents
+      for (const sheetName of workbook.SheetNames) {
+        console.log('Processing sheet:', sheetName);
+      
+        const worksheet = workbook.Sheets[sheetName];
+        const headerRow = XLSX.utils.sheet_to_json(worksheet, { header: 1, range: 0, raw: true})[0] as string[];
+        const missingHeaders = expectedHeaders.filter(h => !headerRow.includes(h));
+        if (missingHeaders.length > 0) {
+          // throw new RpcException(`Missing headers in the Excel file: ${missingHeaders.join(', ')}`);
+          console.warn(`Skipping sheet '${sheetName}' due to missing headers: ${missingHeaders.join(', ')}`);
+          continue;
+        }
+
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: expectedHeaders, range: 1, defval: '', blankrows: false});
+        const jsonDocuments = jsonData.map((row) => ({row}));
+        
+        const validated = await this.validateExcelFileRows(jsonDocuments);
+        allValidatedRows.push(...validated);
       }
-
-      console.log('File converted to json.', payload.filePath, typeof payload.filePath,);
-      // console.log('json Documents::', jsonDocuments)
-      console.log('count: ', jsonDocuments.length)
-      return await this.uploadJsonFileToDB(jsonDocuments, payload.filePath);
+      if (allValidatedRows.length === 0) {
+        throw new RpcException('No valid rows found across all sheets.');
+      }
+      return await this.uploadJsonFileToDB(allValidatedRows, payload.filePath);
     } catch (err) {
       console.error('Error processing file: ', err);
       throw new RpcException('Error processing file');
     }
   }
 
-  async uploadJsonFileToDB(jsonDocuments: any[], filePath: string) {
+  async uploadJsonFileToDB(allValidatedRows: any[], filePath: string) {
     // validate each row in the Excel file
-      const validatedRows = await this.validateExcelFileRows(jsonDocuments);
-      if (validatedRows.length === 0) {
-        throw new RpcException('No valid rows found in the Excel file.');
-      }
-      await this.insertJsonIntoDB(validatedRows)
+      // const validatedRows = await this.validateExcelFileRows(jsonDocuments);
+      // if (validatedRows.length === 0) {
+      //   throw new RpcException('No valid rows found in the Excel file.');
+      // }
+      await this.insertJsonIntoDB(allValidatedRows)
       await this.deleteJsonFileFromCache([filePath]) // Delete the file after processing
   }
 
@@ -78,7 +94,6 @@ export class FileUploadsService {
         console.warn(`Row ${i} is empty or invalid.`);
         continue; // skip empty/invalid rows
       }
-      console.log('row:::', row.email, 'type:', typeof row.email)
       console.log('arrayOfRow[3]:: ', arrayOfRow[3], 'type:', typeof arrayOfRow[3])
 
       const dto = plainToInstance(ExcelRowDto, {
@@ -118,8 +133,5 @@ export class FileUploadsService {
   }
 
   async exampleUpload(name: string, age: number) {
-    console.log('from uploads gateway uploads-service::', `${name}-${age}`);
-    return { file: 'file received', name: name, age: age };
-    // return { file: 'file received', fileName: file.originalname, mimetype: file.mimetype}
-  }
+    return { file: 'file received', name: name, age: age };}
 }
