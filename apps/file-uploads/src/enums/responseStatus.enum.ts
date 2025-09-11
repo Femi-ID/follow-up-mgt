@@ -13,7 +13,7 @@ export enum ResponseStatus {
   WANTS_TO_JOIN_ROS_BUT_NOT_IN_TOWN_NOW = 'wants_to_join_ros_but_not_in_town_now',
   CALLED_WANTS_TO_JOIN_ROS = 'called_wants_to_join_ros',
   CALLED_WANTS_TO_JOIN_TEXT_AND_EMAIL_SENT= 'called: wants to join ros. text & e-mail sent',
-  CAME_FOR_A_PROGRAMME = 'cam_for_a_programme',
+  CAME_FOR_A_PROGRAMME = 'came_for_a_programme',
   LIVES_FAR_AWAY = 'lives_far_away',
   INVITED_BY_SOMEONE = 'invited_by_someone',
   JUST_VISITING = 'just_visiting',

@@ -13,6 +13,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { NewGuest } from './schemas/new-guests.schema';
 import { Model } from 'mongoose';
 import { stringify } from 'querystring';
+import { FileReportDto } from '@app/contracts/uploads/dto/file-report.dto';
+import { SheetReportStatus } from './enums/sheet-report-status.dto';
 
 const unlinkAsync = promisify(fs.unlink);
 
@@ -42,6 +44,11 @@ export class FileUploadsService {
         'response'
       ];
 
+      const fileReport: FileReportDto = {
+        fileName: payload.originalname,
+        filePath: payload.filePath,
+        sheets: [],
+      }
       const allValidatedRows: ExcelRowDto[] = [];
 
       // const sheetName = workbook.SheetNames[0];
@@ -55,14 +62,31 @@ export class FileUploadsService {
         if (missingHeaders.length > 0) {
           // throw new RpcException(`Missing headers in the Excel file: ${missingHeaders.join(', ')}`);
           console.warn(`Skipping sheet '${sheetName}' due to missing headers: ${missingHeaders.join(', ')}`);
+          fileReport.sheets.push({
+            sheetName,
+            validatedRows: 0,
+            invalidRows: 0,
+            status: SheetReportStatus.SKIPPED,
+            fileName: payload.originalname,
+            message: `Missing headers: ${missingHeaders.join(', ')}`,
+          })
           continue;
         }
 
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: expectedHeaders, range: 1, defval: '', blankrows: false});
         const jsonDocuments = jsonData.map((row) => ({row}));
         
-        const validated = await this.validateExcelFileRows(jsonDocuments);
-        allValidatedRows.push(...validated);
+        const validated = await this.validateExcelFileRows(jsonDocuments, payload.originalname, sheetName);
+        fileReport.sheets.push({
+          sheetName,
+          validatedRows: validated.length,
+          invalidRows: jsonDocuments.length - validated.length,
+          status: validated.length === jsonDocuments.length ? SheetReportStatus.SUCCESS : SheetReportStatus.PARTIAL,
+          fileName: payload.originalname
+        })
+        const completeRows = validated.map(row => ({...row}));
+        // allValidatedRows.push(...validated);
+        allValidatedRows.push(...completeRows);
       }
       if (allValidatedRows.length === 0) {
         throw new RpcException('No valid rows found across all sheets.');
@@ -84,7 +108,7 @@ export class FileUploadsService {
       await this.deleteJsonFileFromCache([filePath]) // Delete the file after processing
   }
 
-  async validateExcelFileRows(jsonRows): Promise<ExcelRowDto[]> {
+  async validateExcelFileRows(jsonRows, filename: string, sheetname: string): Promise<ExcelRowDto[]> {
     const validatedRows: ExcelRowDto[] = [];
     for (let i = 0; i < jsonRows.length; i++) {
       const row = jsonRows[i]?.['row'] || {};
@@ -105,6 +129,8 @@ export class FileUploadsService {
         ageGroup: arrayOfRow[5] ?? '',
         response: typeof arrayOfRow[6] === 'string' ? arrayOfRow[6].toString().toLowerCase(): '',
         member: arrayOfRow[7] === 'true' ? true: false,
+        fileName: filename,
+        sheetName: sheetname,
       });
 
       dto.email = dto.email?.trim();

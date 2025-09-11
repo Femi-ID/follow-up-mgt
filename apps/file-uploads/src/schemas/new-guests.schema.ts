@@ -33,6 +33,12 @@ export class NewGuest {
     @Prop({ required: true, type: String })
     @IsEnum(ResponseStatus, { message: 'value must be one of the choices listed in the ResponseStatus enum.'})
     response: ResponseStatus;
+
+    @Prop({ required: true })
+    fileName: string
+
+    @Prop({ required: true})
+    sheetName: string
 }
 
 export const NewGuestSchema = SchemaFactory.createForClass(NewGuest);

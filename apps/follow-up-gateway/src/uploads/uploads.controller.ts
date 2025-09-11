@@ -47,7 +47,7 @@ export class UploadsController {
 
     // To handle single file upload
     const singleFile = Array.isArray(file) ? file[0] : file;
-    console.log('file from user', singleFile)
+    console.log('single file from user', singleFile)
     const payload: FileProcessingPayload = {
       filePath: singleFile.path,
       fieldname: singleFile.fieldname,

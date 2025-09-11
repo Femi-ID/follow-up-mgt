@@ -33,4 +33,10 @@ export class ExcelRowDto {
 
   @IsEnum(ResponseStatus, { message: 'value must be one of the choices listed in the ResponseStatus enum.' })
   response: ResponseStatus;
+
+  @IsString()
+  fileName: string;
+
+  @IsString()
+  sheetName: string;
 }
