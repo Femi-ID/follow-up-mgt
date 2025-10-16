@@ -17,7 +17,7 @@ export class UsersService {
 
     const hashedPassword = await this.hashPassword(password);
     
-    createUserDto.password, createUserDto.email = hashedPassword, email;
+    createUserDto.email, createUserDto.password = hashedPassword, email;
     const newUser = await this.userModel.create(createUserDto)
     return newUser;
   }

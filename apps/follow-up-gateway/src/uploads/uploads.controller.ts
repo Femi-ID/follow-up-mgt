@@ -1,29 +1,37 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Logger,
   Post,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { extname, join } from 'path';
 import { Public } from '../auth/decorators/public.decorators';
 import { UploadsService } from './uploads.service';
 import { diskStorage } from 'multer';
 import { FileProcessingPayload } from '@app/contracts/uploads/dto/file-uploads.dto';
+import { Roles } from '../auth/decorators/roles.decorators';
+import { Role } from 'apps/users/src/enums/roles.enums';
 
-const tempFileFolder =
-  '../../../../user/PycharmProjects/nestjs/follow-up/libs/contracts/src/uploads/excel-files';
+// const tempFileFolder =
+//   '../../../../user/PycharmProjects/nestjs/follow-up/libs/contracts/src/uploads/excel-files';
+console.log(process.cwd())
+// Construct the path from the project's root directory
+const tempFileFolder = join(process.cwd(), 'libs', 'contracts', 'src', 'uploads', 'excel-files');
 @Controller('uploads')
 export class UploadsController {
+  private readonly logger = new Logger(UploadsController.name);
+
   constructor(private uploadsService: UploadsService) {}
 
-  @Public()
+  @Roles(Role.ADMIN, Role.TEAM_LEADER, Role.TEAM_MEMBER)
   @Post()
   @UseInterceptors(
-    FileInterceptor('file', {
-      // 'file': inside the form-data, the key should be 'file' and the value: file itself
+    FileInterceptor('file', { // 'file': inside the form-data, the key should be 'file' and the value: file itself
       storage: diskStorage({
         destination: (req, file, cb) => {
           cb(null, tempFileFolder); // Set the destination folder for uploaded files
@@ -60,14 +68,14 @@ export class UploadsController {
   }
 
 
-  @Public()
+  @Roles(Role.ADMIN, Role.TEAM_LEADER, Role.TEAM_MEMBER)
   @Post('multiple-files')
   @UseInterceptors(
-    FileInterceptor('files', {
+    FilesInterceptor('files', 10, { // limit set to 10 files
       storage: diskStorage({
         destination: (req, file, cb) => {
           cb(null, tempFileFolder);
-          console.log('File destination:', tempFileFolder);
+          // console.log('File destination:', tempFileFolder);
         },
         filename: (req, file, callback) => {
           const uniqueSuffix =
@@ -79,20 +87,24 @@ export class UploadsController {
     }),
   )
   async uploadMultipleExcelFiles(
-    @UploadedFiles() files: Express.Multer.File[],
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    for (const file of files) {
-      const payload: FileProcessingPayload = {
-        filePath: file.path,
-        fieldname: file.fieldname,
-        originalname: file.originalname,
-        mimetype: file.mimetype,
-        buffer: file.buffer, // optional now cause we have file path
-      };
-      console.log('File sent', file.originalname);
-      await this.uploadsService.uploadExcelFile(payload);
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No files uploaded.');
     }
-    // return { message: 'All files received. Processing started...' };
+
+    // 1. Map all files to their processing payloads
+    const payloads: FileProcessingPayload[] = files.map((file) => ({
+      filePath: file.path,
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      buffer: null, // Let the service read the file from the path
+    }));
+
+    // 2. Send the entire batch to the service to handle processing
+    this.logger.log(`Sending ${payloads.length} files for processing.`);
+    return await this.uploadsService.uploadMultipleExcelFiles(payloads);
   }
 
   @Public()

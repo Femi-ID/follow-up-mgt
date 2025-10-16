@@ -7,6 +7,9 @@ import { CacheModule } from '@nestjs/cache-manager';
 // import { redisInsStore } from 'cache-manager-redis-yet';
 import redisStore from 'cache-manager-redis-store';
 import { RedisSharedModule } from '@app/contracts/redis/redis.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from '../guards/jwt-auth/jwt-auth.guard';
+import { RolesGuard } from '../guards/roles/roles.guard';
 
 @Module({
   imports: [
@@ -49,9 +52,13 @@ import { RedisSharedModule } from '@app/contracts/redis/redis.module';
     //   }),
     //   inject:[ConfigService],
     //   isGlobal: true
-    // }) 
+    // })
   ],
-  providers: [UploadsService],
+  providers: [
+    UploadsService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
   controllers: [UploadsController],
 })
 export class UploadsModule {}

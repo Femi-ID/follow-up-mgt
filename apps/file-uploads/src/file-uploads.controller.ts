@@ -1,15 +1,17 @@
 import { Controller, Get } from '@nestjs/common';
-import { FileUploadsService } from './file-uploads.service';
+// import { FileUploadsService } from './file-uploads.service';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { FileProcessingPayload } from '@app/contracts/uploads/dto/file-uploads.dto';
+import { ClaudeUploadsService } from './claude-file';
+import { FileUploadsService } from './file-uploads.service';
 
 @Controller()
 export class FileUploadsController {
-  constructor(private readonly fileUploadsService: FileUploadsService) {}
+  constructor(private readonly fileUploadsService: FileUploadsService, private readonly claudeService: ClaudeUploadsService) {}
 
   @EventPattern('uploads.uploadExcelFile')
   async uploadExcelFile(@Payload() payload: FileProcessingPayload) {
-    return await this.fileUploadsService.convertExcelFileToJson(payload)
+    return await this.claudeService.convertExcelFileToJson(payload)
   }
 
   @EventPattern('example.upload')

@@ -7,6 +7,7 @@ import { NewGuest, NewGuestSchema } from './schemas/new-guests.schema';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { RedisSharedModule } from '@app/contracts/redis/redis.module';
+import { ClaudeUploadsService } from './claude-file';
 
 @Module({
   imports: [
@@ -34,6 +35,6 @@ import { RedisSharedModule } from '@app/contracts/redis/redis.module';
     RedisSharedModule,
   ],
   controllers: [FileUploadsController],
-  providers: [FileUploadsService],
+  providers: [FileUploadsService, ClaudeUploadsService],
 })
 export class FileUploadsModule {}

@@ -165,3 +165,104 @@
 // // 5. Bar charts can be created using frontend Chart.js or embedded into PDFs via puppeteer.
 
 // // Let me know if you want the full Docker + RabbitMQ + MongoDB setup too.
+
+
+
+// const headerMap: Record<string, number> = {};
+//         headerRow.forEach((header, index) => {
+//           if (this.ALLOWED_FIELDS.includes(header.toLowerCase())) {
+//             headerMap[header] = index;
+//           }
+//         });
+//         console.log(`type of headerMap for sheet1? :${typeof headerMap}`)
+//         console.log(`header Map for sheet1? : ${headerMap[0]?.['row']}` ) // find the structure of headerMap
+//         const headerV = headerMap[0]?.['row'] || {};
+//         const headerValue = Object.values(headerV);
+//         console.log(`headerMap value : ${headerValue}`)
+
+
+//   private readonly ALLOWED_FIELDS = [
+//   'name',
+//   'address',
+//   'phoneNumber',
+//   'email',
+//   'gender',
+//   'ageGroup',
+//   'response',
+//   'member',
+//   'filename',
+//   'sheetname'
+// ];
+
+// private readonly REQUIRED_FIELDS = [
+//   'name',
+//   'address',
+//   'phoneNumber',
+//   'gender',
+//   'ageGroup',
+//   'response'
+// ];
+
+
+// **********************************88
+// async validateExcelFileRows(jsonRows, filename: string, sheetname: string, headerMap): Promise<ExcelRowDto[]> {
+//   const validatedRows: ExcelRowDto[] = [];
+
+//   for (let i = 0; i < jsonRows.length; i++) {
+//     const row = jsonRows[i]?.['row'] || {};
+//     const arrayOfRow = Object.values(row);
+
+//     if (!row || Object.keys(row).length === 0) {
+//       console.warn(`Row ${i} is empty or invalid.`);
+//       continue;
+//     }
+
+//     // 🔑 Filter only allowed fields
+//     const filteredRow = Object.keys(row)
+//       .filter((key) => this.ALLOWED_FIELDS.includes(key))
+//       .reduce((acc, key) => {
+//         acc[key] = row[key];
+//         return acc;
+//       }, {} as any);
+
+//     // 🔑 Enforce required fields
+//     const missingRequired = this.REQUIRED_FIELDS.filter((field) => !filteredRow[field] || filteredRow[field] === '');
+//     if (missingRequired.length > 0) {
+//       console.warn(`Row ${i} skipped. Missing required fields: ${missingRequired.join(', ')}`);
+//       continue;
+//     }
+
+//     const dto = plainToInstance(ExcelRowDto, {
+//       name: arrayOfRow[headerMap['name']] ?? '',
+//       address: arrayOfRow[headerMap['address']] ?? '',
+//       phoneNumber: arrayOfRow[headerMap['phoneNumber']] ?? '',
+//       email: typeof arrayOfRow[headerMap['email']] === 'string'
+//         ? (arrayOfRow[headerMap['email']] as string).toLowerCase()
+//         : '',
+//       gender: arrayOfRow[headerMap['gender']] ?? '',
+//       ageGroup: arrayOfRow[headerMap['ageGroup']] ?? '',
+//       response: arrayOfRow[headerMap['response']] ?? '',
+//       member: arrayOfRow[headerMap['member']] === 'true',
+//       fileName: filename,
+//       sheetName: sheetname,
+//     });
+//     // const dto = plainToInstance(ExcelRowDto, {
+//     //   ...filteredRow,
+//     //   email: typeof filteredRow.email === 'string' ? filteredRow.email.trim().toLowerCase() : undefined,
+//     //   fileName: filename,
+//     //   sheetName: sheetname,
+//     // });
+
+//     if (dto.email === '') delete dto.email;
+
+//     const errors = await validate(dto);
+//     if (errors.length > 0) {
+//       console.warn(`Validation errors for row ${i}: `, errors);
+//       continue;
+//     }
+
+//     validatedRows.push(dto);
+//   }
+
+//   return validatedRows;
+// }
