@@ -15,19 +15,24 @@ export class UploadsService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
-  async uploadExcelFile(payload: FileProcessingPayload) {
-    this.uploadsClient.emit('uploads.uploadExcelFile', payload);
+  async uploadExcelFile(payload: FileProcessingPayload, serviceDate?: string) {
+    if (serviceDate) {
+      this.uploadsClient.emit('uploads.uploadExcelFile', {payload, serviceDate});
+    } else {
+      this.uploadsClient.emit('uploads.uploadExcelFile', { payload });
+    }
     this.logger.log('File received in uploads service:-', payload.fieldname)
     return {
       message: 'File received and queued for processing.',
       fileName: payload.originalname,
+      serviceDate: serviceDate
     };
   }
 
   async uploadMultipleExcelFiles(payloads: FileProcessingPayload[]) {
     let i = payloads.length;
     payloads.forEach((payload) => {
-      this.uploadsClient.emit('uploads.uploadExcelFile', payload);
+      this.uploadsClient.emit('uploads.uploadExcelFile', {payload});
 
       this.logger.log('File sent for processing:- ', payload.fieldname)
       this.logger.log(`${i} files remaining for processing.`)

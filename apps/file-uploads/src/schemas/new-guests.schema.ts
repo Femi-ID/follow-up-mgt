@@ -9,7 +9,7 @@ export class NewGuest {
     @Prop({ required: true})
     name: string;
 
-    @Prop({ required: false, unique: true, sparse: true })
+    @Prop({ required: false, sparse: true })
     // A sparse index tells MongoDB to only enforce uniqueness when the field exists.
     email: string;
 
@@ -39,6 +39,9 @@ export class NewGuest {
 
     @Prop({ required: true})
     sheetName: string
+
+    @Prop({ required: true, type: Date, default: Date.now })
+    serviceDate: Date;
 }
 
 export const NewGuestSchema = SchemaFactory.createForClass(NewGuest);

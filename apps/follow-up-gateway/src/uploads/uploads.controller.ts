@@ -3,7 +3,9 @@ import {
   Body,
   Controller,
   Logger,
+  Param,
   Post,
+  Query,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
@@ -17,10 +19,9 @@ import { FileProcessingPayload } from '@app/contracts/uploads/dto/file-uploads.d
 import { Roles } from '../auth/decorators/roles.decorators';
 import { Role } from 'apps/users/src/enums/roles.enums';
 
-// const tempFileFolder =
-//   '../../../../user/PycharmProjects/nestjs/follow-up/libs/contracts/src/uploads/excel-files';
-console.log(process.cwd())
+
 // Construct the path from the project's root directory
+console.log(process.cwd())
 const tempFileFolder = join(process.cwd(), 'libs', 'contracts', 'src', 'uploads', 'excel-files');
 @Controller('uploads')
 export class UploadsController {
@@ -28,8 +29,9 @@ export class UploadsController {
 
   constructor(private uploadsService: UploadsService) {}
 
-  @Roles(Role.ADMIN, Role.TEAM_LEADER, Role.TEAM_MEMBER)
-  @Post()
+  // @Roles(Role.ADMIN, Role.TEAM_LEADER, Role.TEAM_MEMBER)
+  @Public()
+  @Post('single-file/upload')
   @UseInterceptors(
     FileInterceptor('file', { // 'file': inside the form-data, the key should be 'file' and the value: file itself
       storage: diskStorage({
@@ -40,6 +42,7 @@ export class UploadsController {
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
           const fileName = `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`;
+          console.log('File name: ', fileName);
           callback(null, fileName);
         },
       }),
@@ -47,7 +50,10 @@ export class UploadsController {
   )
   async uploadExcelFile(
     @UploadedFile() file: Express.Multer.File | Express.Multer.File[],
+    // @Param('date') date: string,
+    @Query('date') serviceDate?: string,
   ) {
+    console.log('Received serviceDate in controller:', serviceDate);
     // Check if file is an array (multiple files uploaded)
     if (Array.isArray(file) && file.length > 1) {
       return await this.uploadMultipleExcelFiles(file);
@@ -64,11 +70,12 @@ export class UploadsController {
       buffer: null, // optional now cause we have file path
       // uploadedBy: userId,
     };
-    return await this.uploadsService.uploadExcelFile(payload);
+    return await this.uploadsService.uploadExcelFile(payload, serviceDate);
   }
 
 
-  @Roles(Role.ADMIN, Role.TEAM_LEADER, Role.TEAM_MEMBER)
+  // @Roles(Role.ADMIN, Role.TEAM_LEADER, Role.TEAM_MEMBER)
+  @Public()
   @Post('multiple-files')
   @UseInterceptors(
     FilesInterceptor('files', 10, { // limit set to 10 files
@@ -93,7 +100,7 @@ export class UploadsController {
       throw new BadRequestException('No files uploaded.');
     }
 
-    // 1. Map all files to their processing payloads
+    // To map all files to their processing payloads
     const payloads: FileProcessingPayload[] = files.map((file) => ({
       filePath: file.path,
       fieldname: file.fieldname,
@@ -102,7 +109,6 @@ export class UploadsController {
       buffer: null, // Let the service read the file from the path
     }));
 
-    // 2. Send the entire batch to the service to handle processing
     this.logger.log(`Sending ${payloads.length} files for processing.`);
     return await this.uploadsService.uploadMultipleExcelFiles(payloads);
   }

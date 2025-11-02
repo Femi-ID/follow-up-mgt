@@ -1,7 +1,8 @@
 import { AgeGroup } from "apps/file-uploads/src/enums/age-group.enum";
 import { Gender } from "apps/file-uploads/src/enums/gender.enums";
 import { ResponseStatus } from "apps/file-uploads/src/enums/responseStatus.enum";
-import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import { IsBoolean, IsDate, IsEmail, IsEnum, IsISO8601, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class ExcelRowDto {
   @IsString()
@@ -41,4 +42,10 @@ export class ExcelRowDto {
   @IsNotEmpty()
   @IsString()
   sheetName: string;
+
+  // @IsISO8601() // Validates a string like "2025-10-20T09:00:00.000Z"
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date) // This tells class-transformer (plainToInstance) to convert the incoming value (the string) into a Date object
+  serviceDate: string;
 }

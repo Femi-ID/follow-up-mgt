@@ -43,23 +43,23 @@ export class FileUploadsService {
   ) {}
 
   // This function is NOW NOT NEEDED! Kept for reference
-  async processMultipleExcelFiles(payload: FileProcessingPayload[]) {
-    const results = [];
-    for (const file of payload) {
-      try {
-        const result = await this.convertExcelFileToJson(file);
-        results.push(result);
-      } catch (error) {
-        this.logger.error(
-          `Failed to process file ${file.originalname}: ${error.message}`
-        );
-        results.push({ fileName: file.originalname, error: error.message });
-      }
-    }
-    return results;
-  }
+  // async processMultipleExcelFiles(payload: FileProcessingPayload[]) {
+  //   const results = [];
+  //   for (const file of payload) {
+  //     try {
+  //       const result = await this.convertExcelFileToJson(file);
+  //       results.push(result);
+  //     } catch (error) {
+  //       this.logger.error(
+  //         `Failed to process file ${file.originalname}: ${error.message}`
+  //       );
+  //       results.push({ fileName: file.originalname, error: error.message });
+  //     }
+  //   }
+  //   return results;
+  // }
 
-  async convertExcelFileToJson(payload: FileProcessingPayload) {
+  async convertExcelFileToJson(payload: FileProcessingPayload, serviceDate?: string) {
     try {
       // To read the Excel file into memory
       const fileBuffer = fs.readFileSync(payload.filePath);
@@ -129,7 +129,8 @@ export class FileUploadsService {
           rawDataRows,
           columnMapping,
           payload.originalname,
-          sheetName
+          sheetName,
+          serviceDate
         );
 
         // Separate valid rows from invalid ones
@@ -233,7 +234,8 @@ export class FileUploadsService {
     rawDataRows: any[][],
     columnMapping: ColumnMapping,
     fileName: string,
-    sheetName: string
+    sheetName: string,
+    serviceDate?: string
   ): Promise<RowValidationResult[]> {
     const results: RowValidationResult[] = [];
 
@@ -303,6 +305,11 @@ export class FileUploadsService {
         // To add metadata fields
         extractedData.fileName = fileName;
         extractedData.sheetName = sheetName;
+        if (serviceDate) {
+          this.logger.debug(`serviceDate provided: ${serviceDate}`)
+          extractedData.serviceDate = serviceDate;
+        } 
+        // extractedData.serviceDate = "2025-10-12"
 
         //  Transform plain object to DTO instance
         const dto = plainToInstance(ExcelRowDto, extractedData, {
