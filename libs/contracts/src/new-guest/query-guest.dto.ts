@@ -87,4 +87,9 @@ export class QueryGuestsDto {
     @Type(() => Number)
     @IsNumber()
     page?: number;
+
+    @IsOptional()
+    @IsString()
+    @Matches(/^[a-zA-Z,]+$/, { message: 'Select must be a comma-separated string of field names ex: name,email,phoneNumber'})
+    selectFields?: string
 }

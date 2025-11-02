@@ -16,8 +16,8 @@ export class NewGuestController {
   }
 
   @MessagePattern(NewGuestPatterns.GET_ALL_GUESTS)
-  async getAllGuests(@Payload() payload: {filter: any, limit: number, skip: number}) {
-    return this.newGuestService.getAllGuests(payload.filter, payload.limit, payload.skip);
+  async getAllGuests(@Payload() payload: {filter: any, limit: number, skip: number, selectFields?: string}) {
+    return this.newGuestService.getAllGuests(payload.filter, payload.limit, payload.skip, payload.selectFields);
   }
 
   @MessagePattern(NewGuestPatterns.UPDATE_GUEST)

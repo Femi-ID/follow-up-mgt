@@ -151,12 +151,14 @@ export class NewGuestService {
     const limit = 10;
     const currentPage: number = query.page || 1;
     const skip: number = (currentPage - 1) * limit;
+    const selectFields = query.selectFields
 
     this.logger.log('GET all-guests request sent to new-guest microservice', {
       filter: filter,
       page: currentPage,
       limit: limit,
-      skip: skip
+      skip: skip,
+      selectFields: selectFields,
     });
 
     return firstValueFrom(
@@ -164,6 +166,7 @@ export class NewGuestService {
         filter,
         limit,
         skip,
+        selectFields,
       }),
     );
   }

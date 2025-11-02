@@ -38,9 +38,17 @@ export class NewGuestService {
     return await this.newGuestModel.findOne({ email }).exec();
   }
 
-  async getAllGuests(filter: object, limit: number, skip: number) {
+  async getAllGuests(filter: object, limit: number, skip: number, selectFields?: string) {
+    let projection = {}
+    if (selectFields) {
+      projection = selectFields.split(',').reduce((acc, field) => {
+        acc[field.trim()] = 1;
+        return acc;
+      }, {});
+    }
+
     const guests = await  this.newGuestModel
-      .find(filter)
+      .find(filter, projection)
       .limit(limit)
       .skip(skip)
       .exec();
