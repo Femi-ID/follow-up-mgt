@@ -6,7 +6,8 @@ export default registerAs(
   (): JwtModuleOptions => ({
     secret: process.env.JWT_SECRET,
     signOptions: {
-      expiresIn: process.env.JWT_EXPIRATION_TIME,
+      // expiresIn: process.env.JWT_EXPIRATION_TIME,
+      expiresIn: process.env.JWT_EXPIRATION_TIME as unknown as `${number}${'s' | 'm' | 'h' | 'd'}`,
     },
   }),
 );

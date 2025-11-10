@@ -5,6 +5,7 @@ import { LocalAuthGuard } from 'apps/auth/src/guards/local-auth/local-auth.guard
 import { RefreshAuthGuard } from '../guards/refresh-auth/refresh-auth.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth/jwt-auth.guard';
 import { Public } from './decorators/public.decorators';
+import { GoogleAuthGuard } from '../guards/google-auth/google-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -28,5 +29,19 @@ export class AuthController {
   @Post('sign-out')
   async signOut(@Req() req) {
     return this.authService.signOut(req.user.id);
+  }
+
+  @Public()
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/login')
+  async googleLogin() {}
+
+  @Public() 
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  async googleCallbackUrl(@Req() req) {
+    console.log('user request..', req.user)
+    const response = await this.authService.login(req.user.id, req.user.role)
+    return response;
   }
 }

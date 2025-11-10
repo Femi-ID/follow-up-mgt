@@ -54,6 +54,24 @@
       "compilerOptions": {
         "tsConfigPath": "libs/contracts/tsconfig.lib.json"
       }
+    },
+    "file-uploads": {
+      "type": "application",
+      "root": "apps/file-uploads",
+      "entryFile": "main",
+      "sourceRoot": "apps/file-uploads/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/file-uploads/tsconfig.app.json"
+      }
+    },
+    "new-guest": {
+      "type": "application",
+      "root": "apps/new-guest",
+      "entryFile": "main",
+      "sourceRoot": "apps/new-guest/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/new-guest/tsconfig.app.json"
+      }
     }
   }
 }

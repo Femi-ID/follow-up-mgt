@@ -54,3 +54,10 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+jotter.txt
+apps/file-uploads/src/claude-file.ts
+apps/file-uploads/src/file-uploads.service.original.ts
+apps/file-uploads/src/excel_upload_rabbitmq.ts
+apps/file-uploads/src/enums/copilot.txt
+libs/contracts/src/uploads/excel-files
