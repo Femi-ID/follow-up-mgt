@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { NewGuestService } from './new-guest.service';
 import { Roles } from '../auth/decorators/roles.decorators';
@@ -16,6 +17,7 @@ import { Public } from '../auth/decorators/public.decorators';
 import { QueryGuestsDto } from '@app/contracts/new-guest/query-guest.dto';
 import { DeleteManyGuestsDto } from '@app/contracts/new-guest/delete-guest.dto';
 import { UpdateGuestDto } from '@app/contracts/new-guest/update-guest.dto';
+import { QueryAnalyticsDto } from '@app/contracts/new-guest/query-analytics.dto';
 
 @Controller('new-guest')
 export class NewGuestController {
@@ -25,6 +27,14 @@ export class NewGuestController {
   @Post('create/single')
   createSingleGuest(@Body() newGuestDto: NewGuestDto) {
     return this.newGuestService.createSingleGuest(newGuestDto);
+  }
+ 
+  @Public()
+  @Get('analytics/summary/brr')
+  getAnalyticsSummary(
+    // Using ValidationPipe to ensure the DTO is correct
+    @Query(new ValidationPipe({ transform: true})) query: QueryAnalyticsDto) {
+    return this.newGuestService.getAnalyticsSummary(query)
   }
 
   // @Roles(Role.ADMIN, Role.TEAM_LEADER, Role.TEAM_MEMBER)
@@ -54,4 +64,6 @@ export class NewGuestController {
   deleteGuest(@Param('id') id: string) {
     return this.newGuestService.deleteGuest(id);
   }
+
+  
 }

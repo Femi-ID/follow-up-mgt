@@ -4,6 +4,7 @@ import { NewGuestService } from './new-guest.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NewGuest, NewGuestSchema } from 'apps/file-uploads/src/schemas/new-guests.schema';
+import { NewGuestAnalyticsController } from './new-guest-analytics.controller';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { NewGuest, NewGuestSchema } from 'apps/file-uploads/src/schemas/new-gues
         MongooseModule.forRoot(process.env.MONGODB_URI),
         MongooseModule.forFeature([{ name: NewGuest.name, schema: NewGuestSchema }]),
   ],
-  controllers: [NewGuestController],
+  controllers: [NewGuestController, NewGuestAnalyticsController],
   providers: [NewGuestService],
 })
 export class NewGuestModule {}

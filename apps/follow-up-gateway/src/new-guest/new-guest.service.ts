@@ -1,9 +1,10 @@
 import { NewGuestPatterns } from '@app/contracts/new-guest/constants/message-patterns';
 import { DeleteManyGuestsDto } from '@app/contracts/new-guest/delete-guest.dto';
 import { NewGuestDto } from '@app/contracts/new-guest/new-guest.dto';
+import { QueryAnalyticsDto } from '@app/contracts/new-guest/query-analytics.dto';
 import { QueryGuestsDto } from '@app/contracts/new-guest/query-guest.dto';
 import { UpdateGuestDto } from '@app/contracts/new-guest/update-guest.dto';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
@@ -184,5 +185,37 @@ export class NewGuestService {
       'DELETE new-guest request sent to new-guest microservice'
     );
     return firstValueFrom(this.newGuestClient.send(NewGuestPatterns.DELETE_MANY_GUESTS, deleteManyGuestsDto))
+  }
+
+  // async getAnalyticsSummary(query: QueryGuestsDto) {
+  //   const filter: any = {}
+  //   // 'i'- case-insensitive partial match
+  //   if (query.gender) {
+  //     filter.gender = query.gender;
+  //   }
+  //   if (query.ageGroup) {
+  //     filter.ageGroup = query.ageGroup;
+  //   }
+  //   if (query.month) {
+  //     filter.month = query.month
+  //   }
+  //   if (query.year) {
+  //     filter.year = query.year
+  //   }
+  //   if (query.groupBy) {
+  //     filter.groupBy = query.groupBy
+  //   }
+  //   if (!query.month || !query.year ) {
+  //     filter.year = new Date().getFullYear()
+  //     this.logger.log('No month/year provided for analytics, defaulting to current year', { filter })
+  //     // throw new BadRequestException('month or year filter is required for analytics summary')
+  //   }
+  //   this.logger.log('GET analytics-summary request sent to new-guest microservice', {filter})
+  //   return firstValueFrom(this.newGuestClient.send(NewGuestPatterns.GET_ANALYTICS_SUMMARY, filter))
+  // } 
+
+  async getAnalyticsSummary(query: QueryAnalyticsDto) {
+    this.logger.log('GET analytics-summary request sent to new-guest microservice', query)
+    return firstValueFrom(this.newGuestClient.send(NewGuestPatterns.GET_ANALYTICS_SUMMARY, query))
   }
 }
