@@ -10,24 +10,6 @@
   "monorepo": true,
   "root": "apps/follow-up",
   "projects": {
-    "follow-up": {
-      "type": "application",
-      "root": "apps/follow-up",
-      "entryFile": "main",
-      "sourceRoot": "apps/follow-up/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/follow-up/tsconfig.app.json"
-      }
-    },
-    "follow-up-gateway": {
-      "type": "application",
-      "root": "apps/follow-up-gateway",
-      "entryFile": "main",
-      "sourceRoot": "apps/follow-up-gateway/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/follow-up-gateway/tsconfig.app.json"
-      }
-    },
     "auth": {
       "type": "application",
       "root": "apps/auth",
@@ -35,15 +17,6 @@
       "sourceRoot": "apps/auth/src",
       "compilerOptions": {
         "tsConfigPath": "apps/auth/tsconfig.app.json"
-      }
-    },
-    "users": {
-      "type": "application",
-      "root": "apps/users",
-      "entryFile": "main",
-      "sourceRoot": "apps/users/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/users/tsconfig.app.json"
       }
     },
     "contracts": {
@@ -64,6 +37,33 @@
         "tsConfigPath": "apps/file-uploads/tsconfig.app.json"
       }
     },
+    "follow-up": {
+      "type": "application",
+      "root": "apps/follow-up",
+      "entryFile": "main",
+      "sourceRoot": "apps/follow-up/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/follow-up/tsconfig.app.json"
+      }
+    },
+    "follow-up-gateway": {
+      "type": "application",
+      "root": "apps/follow-up-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/follow-up-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/follow-up-gateway/tsconfig.app.json"
+      }
+    },
+    "generate-report": {
+      "type": "application",
+      "root": "apps/generate-report",
+      "entryFile": "main",
+      "sourceRoot": "apps/generate-report/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/generate-report/tsconfig.app.json"
+      }
+    },
     "new-guest": {
       "type": "application",
       "root": "apps/new-guest",
@@ -71,6 +71,15 @@
       "sourceRoot": "apps/new-guest/src",
       "compilerOptions": {
         "tsConfigPath": "apps/new-guest/tsconfig.app.json"
+      }
+    },
+    "users": {
+      "type": "application",
+      "root": "apps/users",
+      "entryFile": "main",
+      "sourceRoot": "apps/users/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/users/tsconfig.app.json"
       }
     }
   }

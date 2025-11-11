@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { UploadsModule } from './uploads/uploads.module';
 import { NewGuestModule } from './new-guest/new-guest.module';
+import { GenerateReportModule } from './generate-report/generate-report.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { NewGuestModule } from './new-guest/new-guest.module';
           expandVariables: true,
         }),
     UploadsModule,
-    NewGuestModule
+    NewGuestModule,
+    GenerateReportModule
   ],
   controllers: [FollowUpGatewayController],
   providers: [FollowUpGatewayService],
