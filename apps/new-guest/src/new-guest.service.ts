@@ -8,13 +8,8 @@ import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
 import { NewGuest } from 'apps/file-uploads/src/schemas/new-guests.schema';
 import { Model, Types } from 'mongoose';
+import { ResolvedAnalyticsQuery } from './new-guest.dto';
 // DECIDE: Whether to make fileName and sheetName required in NewGuest schema
-
-type ResolvedAnalyticsQuery = {
-  finalStartDate: Date;
-  finalEndDate: Date;
-  finalGroupByUnit: AnalyticsGroupByUnit
-}
 
 @Injectable()
 export class NewGuestService {
@@ -117,7 +112,7 @@ export class NewGuestService {
 
   async getAnalyticsSummary(query: QueryAnalyticsDto) {
     // to resolve all date and grouping logic
-    const { finalStartDate, finalEndDate, finalGroupByUnit } = this.resolveAnalyticsQuery(query)
+    const { finalStartDate, finalEndDate, finalGroupByUnit } = await this.resolveAnalyticsQuery(query)
 
     // to build $match stage
     const $match: any = {
@@ -190,7 +185,7 @@ export class NewGuestService {
   }
 
 
-  private resolveAnalyticsQuery(query: QueryAnalyticsDto): ResolvedAnalyticsQuery {
+  async resolveAnalyticsQuery(query: QueryAnalyticsDto): Promise<ResolvedAnalyticsQuery> {
     const today = new Date();
 
     // priority 1- specific date range
@@ -229,7 +224,7 @@ export class NewGuestService {
   }
 
 
-  private finalizeQuery(start: Date, end: Date, unit: AnalyticsGroupByUnit): ResolvedAnalyticsQuery {
+  async finalizeQuery(start: Date, end: Date, unit: AnalyticsGroupByUnit): Promise<ResolvedAnalyticsQuery> {
     start.setUTCHours(0,0,0,0)
     end.setUTCHours(23, 59, 59, 999) // To get the last day: go to the 1st of the *next* month, then subtract 1 millisecond.
     return {
