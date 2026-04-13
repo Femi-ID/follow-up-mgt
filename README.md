@@ -97,3 +97,46 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+
+graph TD
+    %% Frontend Interaction
+    Client[React.js Frontend: User Input] -->|Async HTTP Request + JWT Token| API[FastAPI Backend]
+    
+    %% Authentication
+    API --> Auth{JWT Middleware Valid?}
+    Auth -->|No| Reject[401 Unauthorized]
+    Auth -->|Yes: Extract User ID| Router{Request Type}
+
+    %% Vitals Management Feature
+    Router -->|Log New Vitals| DBWrite[(PostgreSQL: Vitals_Log)]
+    DBWrite --> ReturnSuccess[Return Success to Client]
+
+    %% AI Consultation Feature
+    Router -->|Symptom Query| DBRead[(PostgreSQL: Fetch Context)]
+    
+    %% Context Retrieval
+    DBRead -->|Fetch 5 Recent Vitals & 3 Chat Exchanges| GuardrailPre{Emergency Guardrail Layer}
+    
+    %% Pre-Processing Safety Guardrail
+    GuardrailPre -->|Matches Emergency Keyword| Emergency[Hard-coded Emergency Advisory]
+    GuardrailPre -->|Safe| PromptBuilder[LangChain: Build Prompt Template]
+    
+    %% AI Pipeline
+    PromptBuilder -->|System Role + Vitals + Chat Hist + Query| LLM[LLM API: GPT-4o / LLaMA-3]
+    LLM --> GuardrailPost{Output Validation Layer}
+    
+    %% Post-Processing Safety Guardrail
+    GuardrailPost -->|Prohibited Output Detected| Fallback[Safe Fallback + Disclaimer]
+    GuardrailPost -->|Valid Output| SeverityCheck{AI Flags High Severity?}
+    
+    %% Geolocation Referral Feature
+    SeverityCheck -->|Yes| Geolocation[Google Maps Places API]
+    Geolocation --> Format[Format Final Payload + Nearby Hospitals]
+    SeverityCheck -->|No| Format
+    
+    %% Final Delivery
+    Format --> Deliver[Deliver Response to Client]
+    Emergency --> Deliver
+    Fallback --> Deliver
